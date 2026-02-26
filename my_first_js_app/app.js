@@ -1,7 +1,12 @@
 let attempts = 3;
+let secretNumber = Math.floor(Math.random() * 100) + 1;
+let gameAttempts = 0;
 
-const savedLogin = "admin";
-const savedPassword = "1234";
+const users = [
+    { login: "admin", password: "1234" },
+    { login: "oleg", password: "7777" },
+    { login: "test", password: "0000" }
+];
 
 const loginInput = document.getElementById("login");
 const passwordInput = document.getElementById("password");
@@ -25,53 +30,73 @@ const ageInput = document.getElementById("ageInput");
 const checkAgeBtn = document.getElementById("checkAgeBtn");
 const ageResult = document.getElementById("ageResult");
 
+const gameBtn = document.getElementById("gameBtn")
+const gameBlock = document.getElementById("gameBlock")
+const guessInput = document.getElementById("guessInput")
+const guessBtn = document.getElementById("guessBtn")
+const gameResult = document.getElementById("gameResult")
 
-// 🔐 Авторизация
+
+// Авторизация
 loginBtn.addEventListener("click", function () {
 
-const loginValue = loginInput.value;
-const passwordValue = passwordInput.value;
+    const loginValue = loginInput.value;
+    const passwordValue = passwordInput.value;
 
-if (loginValue === savedLogin && passwordValue === savedPassword) {
+    let isAuthorised = false;
 
-message.style.color = "green";
-message.textContent = "Вход выполнен успешно";
+    for (let i = 0; i < users.length; i++) {
 
-loginBtn.disabled = true;
-loginInput.disabled = true;
-passwordInput.disabled = true;
+        if (
+            users[i].login === loginValue &&
+            users[i].password === passwordValue
+        ) {
+            isAuthorised = true;
+            break;
+        }
+    }
 
-menu.classList.remove("hidden");
+    if (isAuthorised) {
+        
+        message.style.color = "green";
+        message.textContent = "Вход выполнен успешно";
 
-} else {
+        loginBtn.disabled = true;
+        loginInput.disabled = true;
+        passwordInput.disabled = true;
 
-attempts--;
+        menu.classList.remove("hidden");
+    
+    } else {
 
-message.style.color = "red";
-message.textContent = `Неверный логин или пароль. Осталось попыток: ${attempts}`;
+        attempts--;
 
-if (attempts === 0) {
-message.textContent = "Доступ заблокирован";
-loginBtn.disabled = true;
-}
-}
+        message.style.color = "red";
+        message.textContent = `Неверный логин или пароль. Осталось попыток ${attempts}`;
+
+        if (attempts === 0) {
+            message.textContent = "Доступ заблокирован";
+            loginBtn.disabled = true;
+        }
+    }
 });
 
 
-// 🚪 Выход
+// Выход
 logoutBtn.addEventListener("click", function () {
 location.reload();
 });
 
 
-// 🧮 Показ калькулятора
+// Показ калькулятора
 calcBtn.addEventListener("click", function () {
 calculator.classList.remove("hidden");
 ageBlock.classList.add("hidden");
+gameBlock.classList.add("hidden");
 });
 
 
-// ➕ Логика калькулятора
+// Логика калькулятора
 calcBtnDo.addEventListener("click", function () {
 
     const n1 = +num1Input.value;
@@ -106,14 +131,15 @@ calcBtnDo.addEventListener("click", function () {
 });
 
 
-// 👶 Показ блока возраста
+// Показ блока возраста
 ageBtn.addEventListener("click", function () {
 ageBlock.classList.remove("hidden");
 calculator.classList.add("hidden");
+gameBlock.classList.add("hidden");
 });
 
 
-// 🔍 Проверка возраста
+// Проверка возраста
 checkAgeBtn.addEventListener("click", function () {
 
 const age = +ageInput.value;
@@ -126,4 +152,39 @@ return;
 
 ageResult.style.color = "green";
 ageResult.textContent = "Возраст введён корректно";
+});
+
+// Показ игры
+gameBtn.addEventListener("click", function () {
+    gameBlock.classList.remove("hidden");
+    calculator.classList.add("hidden");
+    ageBlock.classList.add("hidden");
+});
+
+// Игра
+guessBtn.addEventListener("click", function () {
+
+    const guess = +guessInput.value;
+    gameAttempts++;
+
+    if (!Number.isInteger(guess) || guess < 1 || guess > 100) {
+        gameResult.style.color = "red";
+        gameResult.textContent = "Введите число от 1 до 100";
+        return;
+    }
+
+    if (guess < secretNumber) {
+        gameResult.style.color = "black";
+        gameResult.textContent = "Слишком маленькое число";
+    }
+    else if (guess > secretNumber) {
+        gameResult.style.color = "black";
+        gameResult.textContent = "Слишком большое число";
+    }
+    else {
+        gameResult.style.color = "green";
+        gameResult.textContent = `Вы угадали за ${gameAttempts} попыток!`;
+        guessBtn.disabled = true;
+    }
+
 });
